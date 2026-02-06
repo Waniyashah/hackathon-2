@@ -1,0 +1,2 @@
+# No external dependencies required for this in-memory CLI application
+# Only using Python standard library
