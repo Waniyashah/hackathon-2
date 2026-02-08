@@ -2,14 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 from typing import List
 import uuid
-from pydantic import UUID4
 
 from ..models.user import User
 from ..models.task import Task
-from ..schemas.task import TaskCreate, TaskUpdate, TaskResponse, TaskToggle
+from ..schemas.task import TaskCreate, TaskUpdate, TaskResponse
 from ..database.session import get_session
 from ..middleware.auth import get_current_user
-from ..api.utils import handle_error, check_user_owns_resource, validate_task_exists
+from ..api.utils import handle_error
 from ..services.task_service import create_task, get_user_tasks, get_task_by_id, update_task, delete_task, toggle_task_completion
 
 router = APIRouter(prefix="/users/{user_id}", tags=["Tasks"])
@@ -28,8 +27,11 @@ async def list_user_tasks(
         handle_error("Not authorized to view tasks for this user", status.HTTP_403_FORBIDDEN)
 
     try:
-        tasks = await get_user_tasks(session, user_id)
+        user_uuid = uuid.UUID(user_id)
+        tasks = await get_user_tasks(user_uuid, session)
         return [TaskResponse.model_validate(task) for task in tasks]
+    except HTTPException:
+        raise
     except Exception as e:
         handle_error(f"Failed to retrieve tasks: {str(e)}")
 
@@ -48,8 +50,11 @@ async def create_new_task(
         handle_error("Not authorized to create tasks for this user", status.HTTP_403_FORBIDDEN)
 
     try:
-        db_task = await create_task(session, user_id, task_data)
+        user_uuid = uuid.UUID(user_id)
+        db_task = await create_task(task_data, user_uuid, session)
         return TaskResponse.model_validate(db_task)
+    except HTTPException:
+        raise
     except Exception as e:
         handle_error(f"Failed to create task: {str(e)}")
 
@@ -68,13 +73,16 @@ async def get_single_task(
         handle_error("Not authorized to access tasks for this user", status.HTTP_403_FORBIDDEN)
 
     try:
-        db_task = await get_task_by_id(session, task_id)
+        user_uuid = uuid.UUID(user_id)
+        task_uuid = uuid.UUID(task_id)
+        db_task = await get_task_by_id(task_uuid, user_uuid, session)
 
-        # Verify the task belongs to the specified user
-        if str(db_task.user_id) != user_id:
-            handle_error("Task does not belong to the specified user", status.HTTP_403_FORBIDDEN)
+        if not db_task:
+            handle_error("Task not found", status.HTTP_404_NOT_FOUND)
 
         return TaskResponse.model_validate(db_task)
+    except HTTPException:
+        raise
     except Exception as e:
         handle_error(f"Failed to retrieve task: {str(e)}")
 
@@ -94,13 +102,16 @@ async def update_existing_task(
         handle_error("Not authorized to update tasks for this user", status.HTTP_403_FORBIDDEN)
 
     try:
-        # Verify the task exists and belongs to the user
-        db_task = await get_task_by_id(session, task_id)
-        if str(db_task.user_id) != user_id:
-            handle_error("Task does not belong to the specified user", status.HTTP_403_FORBIDDEN)
+        user_uuid = uuid.UUID(user_id)
+        task_uuid = uuid.UUID(task_id)
+        updated_task = await update_task(task_uuid, task_data, user_uuid, session)
 
-        updated_task = await update_task(session, task_id, task_data)
+        if not updated_task:
+            handle_error("Task not found", status.HTTP_404_NOT_FOUND)
+
         return TaskResponse.model_validate(updated_task)
+    except HTTPException:
+        raise
     except Exception as e:
         handle_error(f"Failed to update task: {str(e)}")
 
@@ -119,13 +130,16 @@ async def remove_task(
         handle_error("Not authorized to delete tasks for this user", status.HTTP_403_FORBIDDEN)
 
     try:
-        # Verify the task exists and belongs to the user
-        db_task = await get_task_by_id(session, task_id)
-        if str(db_task.user_id) != user_id:
-            handle_error("Task does not belong to the specified user", status.HTTP_403_FORBIDDEN)
+        user_uuid = uuid.UUID(user_id)
+        task_uuid = uuid.UUID(task_id)
+        result = await delete_task(task_uuid, user_uuid, session)
 
-        await delete_task(session, task_id)
+        if not result:
+            handle_error("Task not found", status.HTTP_404_NOT_FOUND)
+
         return
+    except HTTPException:
+        raise
     except Exception as e:
         handle_error(f"Failed to delete task: {str(e)}")
 
@@ -134,7 +148,6 @@ async def remove_task(
 async def toggle_task_complete_status(
     user_id: str,
     task_id: str,
-    toggle_data: TaskToggle,
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
@@ -145,12 +158,15 @@ async def toggle_task_complete_status(
         handle_error("Not authorized to update tasks for this user", status.HTTP_403_FORBIDDEN)
 
     try:
-        # Verify the task exists and belongs to the user
-        db_task = await get_task_by_id(session, task_id)
-        if str(db_task.user_id) != user_id:
-            handle_error("Task does not belong to the specified user", status.HTTP_403_FORBIDDEN)
+        user_uuid = uuid.UUID(user_id)
+        task_uuid = uuid.UUID(task_id)
+        updated_task = await toggle_task_completion(task_uuid, user_uuid, session)
 
-        updated_task = await toggle_task_completion(session, task_id, toggle_data.completed)
+        if not updated_task:
+            handle_error("Task not found", status.HTTP_404_NOT_FOUND)
+
         return TaskResponse.model_validate(updated_task)
+    except HTTPException:
+        raise
     except Exception as e:
         handle_error(f"Failed to update task completion status: {str(e)}")

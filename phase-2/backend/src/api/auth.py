@@ -6,7 +6,7 @@ from datetime import timedelta
 import uuid
 
 from ..models.user import User
-from ..schemas.user import UserCreate, UserLogin, UserResponse
+from ..schemas.user import UserCreate, UserLogin, UserResponse, UserRegister
 from ..database.session import get_session
 from ..middleware.auth import create_access_token
 from ..api.utils import handle_error
@@ -18,24 +18,44 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-@router.post("/signup", response_model=UserResponse)
-async def register_user(user_data: UserCreate, session: Session = Depends(get_session)):
+@router.post("/signup")
+async def register_user(user_data: UserRegister, session: Session = Depends(get_session)):
     """
-    Register a new user
+    Register a new user and return access token
     """
+    # Force reload
     try:
+        # Validate that passwords match
+        if user_data.password != user_data.confirmPassword:
+            handle_error("Passwords do not match", status.HTTP_400_BAD_REQUEST)
+
         # Check if user already exists
         existing_user = session.query(User).filter(User.email == user_data.email).first()
         if existing_user:
             handle_error("Email already registered", status.HTTP_409_CONFLICT)
 
+        # Create UserCreate object (without confirmPassword) for the service
+        user_create = UserCreate(email=user_data.email, password=user_data.password)
+
         # Create new user
-        db_user = await create_user(user_data, session)
-        return UserResponse(
-            id=db_user.id,
-            email=db_user.email,
-            created_at=db_user.created_at
+        db_user = await create_user(user_create, session)
+
+        # Create access token for the new user
+        access_token = create_access_token(
+            data={"sub": str(db_user.id)}, expires_delta=30  # 30 minutes expiry
         )
+
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": UserResponse(
+                id=db_user.id,
+                email=db_user.email,
+                created_at=db_user.created_at
+            )
+        }
+    except HTTPException:
+        raise  # Re-raise HTTPException as-is
     except Exception as e:
         handle_error(f"Registration failed: {str(e)}")
 
@@ -51,9 +71,8 @@ async def login_user(user_credentials: UserLogin, session: Session = Depends(get
             handle_error("Incorrect email or password", status.HTTP_401_UNAUTHORIZED)
 
         # Create access token
-        access_token_expires = timedelta(minutes=30)  # 30 minutes expiry
         access_token = create_access_token(
-            data={"sub": str(user.id)}, expires_delta=access_token_expires
+            data={"sub": str(user.id)}, expires_delta=30  # 30 minutes expiry
         )
 
         return {
@@ -65,6 +84,8 @@ async def login_user(user_credentials: UserLogin, session: Session = Depends(get
                 created_at=user.created_at
             )
         }
+    except HTTPException:
+        raise  # Re-raise HTTPException as-is
     except Exception as e:
         handle_error(f"Login failed: {str(e)}")
 

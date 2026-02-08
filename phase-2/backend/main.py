@@ -1,13 +1,13 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel import SQLCreateTable
 from contextlib import asynccontextmanager
 
-from .src.api.auth import router as auth_router
-from .src.api.tasks import router as tasks_router
-from .src.models.user import User, Task
-from .src.database.session import engine
-from .src.middleware.security import add_security_headers
+from src.api.auth import router as auth_router
+from src.api.tasks import router as tasks_router
+from src.models.user import User
+from src.models.task import Task
+from src.database.session import engine
+from src.middleware.security import add_security_headers
 
 
 @asynccontextmanager

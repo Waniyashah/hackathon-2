@@ -22,11 +22,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     isAuthenticated: false,
-    token: localStorage.getItem('token'),
+    token: null,
   });
 
   useEffect(() => {
-    // Check if token exists and is valid on initial load
+    // Check if token exists and is valid on initial load (client-side only)
     const token = localStorage.getItem('token');
     if (token) {
       setAuthState({
@@ -110,3 +110,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+};

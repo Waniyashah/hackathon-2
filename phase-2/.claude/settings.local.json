@@ -2,7 +2,24 @@
   "permissions": {
     "allow": [
       "Bash(powershell -Command:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(python:*)",
+      "Bash(npm install)",
+      "Bash(timeout:*)",
+      "Bash(curl http://localhost:8080/health)",
+      "Bash(curl -X POST http://localhost:8080/api/auth/signup -H \"Content-Type: application/json\" -d \"{\"\"email\"\":\"\"test@example.com\"\",\"\"password\"\":\"\"password123\"\"}\")",
+      "Bash(curl:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxNDM1NzEwYi05MGFlLTQ0MDktYTQ5ZC01YzljODBjZDdmZTYiLCJleHAiOjE3NzA1MDM4ODV9.yAkle7V-_nwp4CtN_6wvgq6pXlD4ja36RfyhuEREYFk\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxNDM1NzEwYi05MGFlLTQ0MDktYTQ5ZC01YzljODBjZDdmZTYiLCJleHAiOjE3NzA1MDQwNTR9.eUhRIoeHICWV-ZN3AHyZavmE7OB9SGetX8UU6vfGtlA\")",
+      "Bash(npm run dev)",
+      "Bash(npm install:*)",
+      "Bash(pip install:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmYjI2NjExNi05MjE2LTRiNjgtOTk1NS04NDQxMjVhZjE0OGIiLCJleHAiOjE3NzA1MDU4OTd9.6UZP1mFutYFfIu0phhIKP5oxsBqCpeZY6MEeKNF1LX8\")",
+      "Bash(USER_ID=\"fb266116-9216-4b68-9955-844125af148b\")",
+      "Bash(USER_EMAIL=\"complete-flow@example.com\")",
+      "Bash(taskkill:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)"
     ]
   }
 }

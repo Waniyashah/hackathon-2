@@ -60,6 +60,8 @@ async def get_current_user(
     """
     Get the current user from the token
     """
+    import uuid
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -74,7 +76,13 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
 
-    user = session.get(User, user_id)
+    # Convert string user_id to UUID
+    try:
+        user_uuid = uuid.UUID(user_id)
+    except ValueError:
+        raise credentials_exception
+
+    user = session.get(User, user_uuid)
     if user is None:
         raise credentials_exception
 
