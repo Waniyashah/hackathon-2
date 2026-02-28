@@ -5,7 +5,7 @@ class ApiClient {
   private client: AxiosInstance;
   private baseUrl: string;
 
-  constructor(baseURL: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080') {
+  constructor(baseURL: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000') {
     this.baseUrl = baseURL;
     this.client = axios.create({
       baseURL: this.baseUrl,
@@ -18,6 +18,7 @@ class ApiClient {
     // Add request interceptor to include token
     this.client.interceptors.request.use(
       (config) => {
+        console.log(`Making request to: ${config.baseURL}${config.url}`);
         const token = localStorage.getItem('token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
@@ -47,8 +48,13 @@ class ApiClient {
 
   // Authentication methods
   async signUp(userData: UserRegister) {
-    const response = await this.client.post('/api/auth/signup', userData);
-    return response.data;
+    try {
+      const response = await this.client.post('/api/auth/signup', userData);
+      return response.data;
+    } catch (error: any) {
+      console.error('Signup error details:', error.response?.data);
+      throw error;
+    }
   }
 
   async signIn(credentials: UserLogin) {

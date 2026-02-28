@@ -1,0 +1,48 @@
+# Gitignore for Todo AI Chatbot Backend
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+.env/
+
+# Distribution / build
+dist/
+build/
+*.egg-info/
+.tox/
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Logs and databases
+*.log
+*.sqlite
+*.sqlite3
+
+# Environment variables
+.env
+.env.*
+.flaskenv
+
+# IDEs and other tools
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# MCP related
+.specify/
+history/
+
+# Frontend
+node_modules/
+dist/
+build/
+.next/
+*.log

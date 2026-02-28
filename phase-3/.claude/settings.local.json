@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init:*)",
+      "Bash(alembic init:*)",
+      "Bash(pip install:*)",
+      "Bash(python -c \"from src.database import Base, async_engine; import asyncio; asyncio.run\\(async_engine.dispose\\(\\)\\)\")",
+      "Bash(python -c \"from src.database import Base, async_engine; print\\(''Database imports successful''\\)\")",
+      "Bash(python:*)",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr :8000)",
+      "Bash(sqlite3:*)",
+      "Bash(pkill -f \"uvicorn src.main:app\")",
+      "Bash(tasklist:*)",
+      "Bash(taskkill:*)",
+      "Bash(for pid in 17404 16212 3712 9016 18204 15484 13796 12684 17180)",
+      "Bash(do taskkill //F //PID $pid)",
+      "Bash(done)",
+      "Bash(for pid in 19832 11700 10456 11580)"
+    ]
+  }
+}

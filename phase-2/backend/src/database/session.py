@@ -1,6 +1,10 @@
 from sqlmodel import create_engine, Session
 import os
 from typing import Generator
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Database URL - using SQLite for testing, or Neon PostgreSQL for production
 DATABASE_URL = os.getenv(

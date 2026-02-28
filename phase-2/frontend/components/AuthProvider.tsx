@@ -77,9 +77,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } else {
         throw new Error('Registration failed: No token received');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
-      throw error;
+      // Extract error message from response
+      const errorMessage = error.response?.data?.detail || error.message || 'Registration failed';
+      throw new Error(errorMessage);
     }
   };
 

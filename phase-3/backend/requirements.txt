@@ -1,0 +1,29 @@
+# Todo AI Chatbot Backend - Requirements
+# Python 3.9+
+
+# Web Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# Database
+sqlmodel==0.0.14
+sqlalchemy==2.0.23
+alembic==1.13.0
+psycopg[binary]==3.3.2
+
+# AI/ML
+google-generativeai==0.3.1
+
+# MCP SDK (placeholder - adjust version as needed)
+# mcp-sdk==1.0.0
+
+# Utilities
+python-dotenv==1.0.0
+pydantic==2.5.0
+
+# Development
+pytest==7.4.3
+pytest-asyncio==0.21.1
+black==23.11.0
+isort==5.12.0
+mypy==1.7.1

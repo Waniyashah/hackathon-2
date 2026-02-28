@@ -1,55 +1,124 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Project Constitution — Evolution of Todo Phase III (AI Chatbot with MCP)
 
-## Core Principles
+## Purpose
+Define architectural principles, constraints, and development standards for building a stateless AI-powered Todo chatbot using free AI services and spec-driven development methodology.
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+## Development Philosophy
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### 1. Spec-Driven Development
+- All implementation follows Agentic Dev Stack workflow: Constitution → Specify → Plan → Tasks → Implementation.
+- No manual coding; all code generated through Claude Code.
+- Specifications act as single source of truth.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### 2. AI Provider Strategy (Free Tier First)
+- Primary AI model provider: Google Gemini API (free tier).
+- Replace OpenAI Agents SDK functionality using:
+  - Gemini conversational reasoning
+  - Structured tool-calling via MCP tools.
+- AI integration must be abstracted via service layer to allow future provider swapping.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### 3. MCP Architecture Principles
+- Official MCP SDK used to expose application tools.
+- MCP tools remain stateless.
+- Tools persist state only through database operations.
+- AI agent interacts with system exclusively through MCP tools.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### 4. Stateless Server Design
+- Backend holds no runtime conversation memory.
+- Conversation state persisted in database:
+  - Conversation model
+  - Message history
+- Each request reconstructs context dynamically.
 
-### [PRINCIPLE_6_NAME]
+### 5. Core System Architecture
 
+#### Frontend:
+- Chat UI (ChatKit-style interface but implemented using free UI components if OpenAI ChatKit unavailable).
 
-[PRINCIPLE__DESCRIPTION]
+#### Backend:
+- FastAPI server
+- Gemini AI service layer
+- MCP server exposing task tools
+- Database persistence layer.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### 6. Database Models
+- Task: user_id, id, title, description, completed, timestamps
+- Conversation: user_id, id, timestamps
+- Message: role, content, conversation_id, timestamps
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### 7. MCP Tool Standards
+Tools exposed:
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+- add_task
+- list_tasks
+- complete_task
+- delete_task
+- update_task
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Rules:
+- Tools must be deterministic.
+- Tools never maintain internal state.
+- All validation occurs before execution.
 
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+### 8. Agent Behavior Guidelines
+Gemini AI must:
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+- Detect user intent from natural language.
+- Select correct MCP tool based on intent.
+- Chain tools if required.
+- Confirm actions with friendly responses.
+- Handle errors gracefully.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+Intent Mapping:
+
+- Add/create/remember → add_task
+- Show/list/view → list_tasks
+- Done/complete → complete_task
+- Delete/remove → delete_task
+- Change/update → update_task
+
+### 9. Security Standards
+- API keys stored in environment variables only.
+- Never hardcode credentials.
+- Validate user input before tool execution.
+
+### 10. Technology Stack
+
+#### Backend:
+- Python 3.13+
+- FastAPI
+- Gemini API (free tier)
+- Official MCP SDK
+- UV package manager
+
+#### Frontend:
+- Chat UI (custom or free ChatKit alternative)
+
+#### Development:
+- Spec-Kit Plus
+- Claude Code
+
+### 11. Deliverables Structure
+
+```
+/frontend
+/backend
+/specs
+/src
+README.md
+CLAUDE.md
+```
+
+### 12. Success Criteria
+
+- Stateless AI chatbot managing todos via natural language.
+- Gemini-powered agent invoking MCP tools correctly.
+- Persistent conversation history.
+- Resumable conversations after server restart.
+- Fully reproducible setup.
+
+### Constraints:
+
+- Free AI services only.
+- Spec-first development mandatory.
+- No manual coding outside agentic workflow.

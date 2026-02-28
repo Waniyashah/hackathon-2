@@ -19,7 +19,8 @@
       "Bash(USER_EMAIL=\"complete-flow@example.com\")",
       "Bash(taskkill:*)",
       "Bash(netstat:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(sqlite3 todo_app.db \"SELECT email, id, created_at FROM user ORDER BY created_at DESC LIMIT 10;\")"
     ]
   }
 }
